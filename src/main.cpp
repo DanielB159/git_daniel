@@ -1,3 +1,5 @@
+#include "GitConfig.h"
+#include <filesystem>
 #include <iostream>
 #include <string>
 
@@ -10,7 +12,11 @@ int main(int argc, char* argv[]) {
     std::string command = argv[1];
 
     if (command == "init") {
-        std::cout << "init" << std::endl;
+        std::filesystem::path repoPath = std::filesystem::current_path();
+        if (argc >= 3) {
+            repoPath = argv[2];
+        }
+        GitConfig::initRepo(repoPath);
         return 0;
     }
 
