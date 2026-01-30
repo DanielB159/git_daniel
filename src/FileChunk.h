@@ -1,14 +1,17 @@
 #pragma once
 #include <string>
-#include <vector>
 
 class FileChunk {
     public:
-        void calcHash();
-        std::string getHash();
-        FileChunk(std::string text);
-
+        explicit FileChunk(std::string&& text) noexcept;
+        explicit FileChunk(FileChunk&& chunk) noexcept;
+        FileChunk& operator=(FileChunk&& other) noexcept;
+        FileChunk(std::string&) = delete;
+        const std::string& getHash() const noexcept;
+        const std::string& getText() const noexcept;
+    
     private:
-        std::vector<std::string> text;
+        void calcHash();
+        std::string text;
         std::string hash;
 };

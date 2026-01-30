@@ -1,4 +1,5 @@
 #include "GitConfig.h"
+#include <exception>
 #include <filesystem>
 #include <iostream>
 #include <string>
@@ -16,7 +17,11 @@ int main(int argc, char* argv[]) {
         if (argc >= 3) {
             repoPath = argv[2];
         }
-        GitConfig::initRepo(repoPath);
+        try {
+            GitConfig::initRepo(repoPath);
+        } catch (const std::exception& ex) {
+            std::cerr << "Init failed: " << ex.what() << std::endl;
+        }
         return 0;
     }
 
