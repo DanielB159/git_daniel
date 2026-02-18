@@ -2,6 +2,7 @@
 #include "GitCommit.h"
 #include "GitObject.h"
 #include <filesystem>
+#include <memory>
  
 class GitConfig {
     
@@ -15,5 +16,5 @@ class GitConfig {
 
         GitConfig* conf;
         std::vector<GitCommit> commitList;
-        std::vector<GitObject> currState;
+        std::vector<std::unique_ptr<GitObject>> currState;
 };

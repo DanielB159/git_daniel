@@ -42,5 +42,7 @@
 
 # build and cache directories
 build
+unix/build
+windows/build
 .cache
 repo

@@ -2,5 +2,6 @@
 
 class GitObject {
     public:
-        virtual void addObject();
+        virtual void addObject() = 0;
+        virtual ~GitObject() = default;
 };
