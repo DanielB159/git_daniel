@@ -26,9 +26,9 @@ void GitConfig::initRepo(std::filesystem::path &repoPath) {
     touch_file(gitConfigPath / "HEAD");
 }
 
-GitConfig& GitConfig::instance(std::filesystem::path &p) {
+const GitConfig& GitConfig::instance(std::filesystem::path &p) {
     // static initialization makes sure that it's calld only once
-    static GitConfig inst(p);
+    static const GitConfig inst(p);
     return inst;
 }
 
