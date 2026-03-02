@@ -15,7 +15,7 @@ class GitConfig {
     private:
         GitConfig(const std::filesystem::path&);
         void initFromConfig(const std::filesystem::path&);
-        std::shared_ptr<GitObject> contains(const std::filesystem::path&) const;
+        std::shared_ptr<GitObject> getFromPath(const std::filesystem::path&) const;
 
         GitConfig* conf;
         std::vector<GitCommit> commitList;

@@ -11,7 +11,7 @@ class GitObject : public std::enable_shared_from_this<GitObject> {
             SUB_FOLDER
         };
         virtual const SubType getType() const = 0;
-        virtual bool replaceData(const std::filesystem::path&) = 0;
+        virtual void replaceData() = 0;
         virtual void mount(std::shared_ptr<GitObject> parent) final { this->parentDir = parent; };
         virtual const bool isSameType(const GitObject* other) const final { return this->getType() == other->getType(); }
         const bool isDirectory() const { return this->getType() == SubType::SUB_FOLDER; }
@@ -21,7 +21,6 @@ class GitObject : public std::enable_shared_from_this<GitObject> {
 
     protected:
         
-        GitObject() = default;
         explicit GitObject(const std::filesystem::path& path) : path(path), name(path.filename().string()) {}
         std::string name;
         const std::filesystem::path& path;

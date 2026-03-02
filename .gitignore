@@ -46,3 +46,7 @@ unix/build
 windows/build
 .cache
 repo
+
+# Vscode / Cursor dirs
+.vscode
+.cursor

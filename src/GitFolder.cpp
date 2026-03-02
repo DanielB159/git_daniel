@@ -1,4 +1,3 @@
-#pragma once
 #include "GitFolder.h"
 #include "GitFile.h"
 #include "GitObject.h"
@@ -7,9 +6,7 @@
 #include <memory>
 #include <iostream>
 
-GitFolder::GitFolder(const std::filesystem::path& p, const bool addSubObj) : GitObject(p) {
-    assert(std::filesystem::is_directory(p));
-    if (!addSubObj) return;
+void GitFolder::addSubObjects(const std::filesystem::path& p) {
     for (const auto& entry : std::filesystem::directory_iterator(p)) {
         const auto& subPath = entry.path();
         std::shared_ptr<GitObject> newEntry;
@@ -21,6 +18,12 @@ GitFolder::GitFolder(const std::filesystem::path& p, const bool addSubObj) : Git
         newEntry->mount(shared_from_this());
         this->addSubObj(newEntry);
     }
+}
+
+GitFolder::GitFolder(const std::filesystem::path& p, const bool addSubObj) : GitObject(p) {
+    assert(std::filesystem::is_directory(p));
+    if (!addSubObj) return;
+    this->addSubObjects(p);
 }
 
 std::shared_ptr<GitObject> GitFolder::getByName(const std::string& name) const {
@@ -47,7 +50,8 @@ bool GitFolder::addSubObj(const std::filesystem::path& p) {
                     (obj->isDirectory() ? "directory" : "file") << " with this name." << std::endl;
             return false;
         }
-        return obj->replaceData(p);
+        obj->replaceData();
+        return true;
     }
 
     std::shared_ptr<GitObject> newObj;
@@ -67,3 +71,14 @@ bool GitFolder::addSubObj(const std::filesystem::path& p) {
 void GitFolder::addSubObj(std::shared_ptr<GitObject> obj) {
     this->subGitObjects.push_back(obj);
 }
+
+void GitFolder::deleteSubObjects() {
+    this->subGitObjects.clear();
+}
+
+void GitFolder::replaceData() {
+    this->deleteSubObjects();
+    this->addSubObjects(this->path);
+}
+
+

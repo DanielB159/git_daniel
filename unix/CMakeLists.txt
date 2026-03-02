@@ -11,6 +11,7 @@ set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../src)
 add_executable(git_d
     ${SRC_DIR}/main.cpp
     ${SRC_DIR}/GitConfig.cpp
+    ${SRC_DIR}/GitFolder.cpp
     ${SRC_DIR}/FileChunk.cpp
     ${SRC_DIR}/CryptoUtils.cpp
     ${SRC_DIR}/GitFile.cpp

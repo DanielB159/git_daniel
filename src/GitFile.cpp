@@ -5,11 +5,11 @@
 #include "GitFile.h"
 #include "FileChunk.h"
 
-GitFile::GitFile(std::filesystem::path& p) : GitObject(p.filename().string()) {
+GitFile::GitFile(const std::filesystem::path& p) : GitObject(p.filename().string()) {
     parseChunks(p);
 }
 
-void GitFile::parseChunks(std::filesystem::path& p) {
+void GitFile::parseChunks(const std::filesystem::path& p) {
     std::ifstream in(p, std::ios::binary);
     if (!in) throw std::runtime_error("Failed to read file at path: " + p.string());
     std::string chunk_text = "";
@@ -30,4 +30,10 @@ void GitFile::parseChunks(std::filesystem::path& p) {
         FileChunk chunk(std::move(chunk_text));
         this->chunks.push_back(std::move(chunk));
     }
+}
+
+void GitFile::replaceData() { // later on should index the changes to the commits in GitConfig
+    this->chunks.clear();
+    this->chunks.shrink_to_fit();
+    this->parseChunks(this->path);
 }

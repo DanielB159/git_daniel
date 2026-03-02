@@ -1,4 +1,6 @@
+#include <cstddef>
 #include <filesystem>
+#include <future>
 #include <iostream>
 #include <memory>
 #include <stdexcept>
@@ -36,6 +38,23 @@ GitConfig& GitConfig::instance(const std::filesystem::path &p) {
     return inst;
 }
 
+std::shared_ptr<GitObject> GitConfig::getFromPath(const std::filesystem::path& p) const {
+    std::shared_ptr<GitFolder> iterator = this->rootObject;
+
+    for (auto it = p.begin(); it != p.end(); ++it) {
+        if (std::next(it) == p.end()) break;
+        std::shared_ptr<GitObject> obj = iterator->getByName(it->string());
+        if (obj && obj->isDirectory()) {
+            iterator = std::dynamic_pointer_cast<GitFolder>(obj);
+        } else {
+            return nullptr;
+        }
+    }
+
+    return iterator->getByName(p.filename().string());
+
+}
+
 GitConfig::GitConfig(const std::filesystem::path &p) {
     if (!std::filesystem::exists(p / ".git_d")) {
         initRepo(p);
@@ -47,7 +66,7 @@ bool GitConfig::addGitObj(const std::filesystem::path& p) {
     
     // TODO: need to add safeguard here to make sure that the path is at least inside of the repo
     
-    std::shared_ptr<GitObject> obj = this->contains(p);
+    std::shared_ptr<GitObject> obj = this->getFromPath(p);
 
     if (obj) { // object already exists by this name
 
