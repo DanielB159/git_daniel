@@ -47,9 +47,5 @@ windows/build
 .cache
 repo
 
-# Vscode / Cursor dirs
-.vscode
-.cursor
-
 # Inner git_d files
 .git_d

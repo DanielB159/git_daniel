@@ -1,0 +1,20 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build-debug",
+            "type": "shell",
+            "command": "cmake --build ${workspaceFolder}/unix/build",
+            "group": { "kind": "build", "isDefault": true },
+            "presentation": { "reveal": "always", "panel": "shared" },
+            "problemMatcher": ["$gcc"]
+        },
+        {
+            "label": "cmake-configure-debug",
+            "type": "shell",
+            "command": "cmake -S ${workspaceFolder}/unix -B ${workspaceFolder}/unix/build -DCMAKE_BUILD_TYPE=Debug",
+            "group": "build",
+            "presentation": { "reveal": "always", "panel": "shared" }
+        }
+    ]
+}

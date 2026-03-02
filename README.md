@@ -68,3 +68,27 @@ cmake --build windows/build
 ```
 .\windows\build\git_d.exe
 ```
+
+# Debugging (macOS / Linux)
+
+Requires the [CodeLLDB](https://marketplace.visualstudio.com/items?itemName=vadimcn.vscode-lldb) extension in Cursor/VSCode.
+
+### One-time configure (debug symbols)
+```
+cmake -S unix -B unix/build -DCMAKE_BUILD_TYPE=Debug
+```
+
+### Steps
+1. Set a breakpoint by clicking in the gutter next to any line number.
+2. Open **Run & Debug** (`Cmd+Shift+D`).
+3. Select a configuration from the dropdown (e.g. `Debug: add example`) and press **F5**.
+4. The binary will rebuild automatically then pause at your breakpoint.
+
+| Key | Action |
+|-----|--------|
+| `F10` | Step over |
+| `F11` | Step into |
+| `Shift+F11` | Step out |
+| `F5` | Continue |
+
+To debug a different command or arguments, edit `"args"` in `.vscode/launch.json`.

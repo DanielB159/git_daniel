@@ -11,6 +11,7 @@ class GitConfig {
         static GitConfig& instance(const std::filesystem::path&);
         static void initRepo(const std::filesystem::path&);
         bool addGitObj(const std::filesystem::path&);
+        std::shared_ptr<GitFolder> getRoot();
     
     private:
         GitConfig(const std::filesystem::path&);

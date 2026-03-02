@@ -1,6 +1,5 @@
 #include <cstddef>
 #include <filesystem>
-#include <future>
 #include <iostream>
 #include <memory>
 #include <stdexcept>
@@ -14,6 +13,10 @@
 static void touch_file(std::filesystem::path p) {
     std::ofstream ofs(p, std::ios::app);
     if (!ofs) throw std::runtime_error("Failed creating the file: " + p.string());
+}
+
+std::shared_ptr<GitFolder> GitConfig::getRoot() {
+    return this->rootObject;
 }
 
 void GitConfig::initRepo(const std::filesystem::path &repoPath) {
@@ -59,14 +62,17 @@ GitConfig::GitConfig(const std::filesystem::path &p) {
     if (!std::filesystem::exists(p / ".git_d")) {
         initRepo(p);
     }
-    this->rootObject = std::make_shared<GitFolder>(p);
+    this->rootObject = GitFolder::create(p, false);
 }
 
 bool GitConfig::addGitObj(const std::filesystem::path& p) {
     
     // TODO: need to add safeguard here to make sure that the path is at least inside of the repo
-    
-    std::shared_ptr<GitObject> obj = this->getFromPath(p);
+    // p is expected to be a canonical absolute path (caller's responsibility)
+    const std::filesystem::path repoRoot = this->rootObject->getPath();
+    const std::filesystem::path relPath = p.lexically_relative(repoRoot);
+
+    std::shared_ptr<GitObject> obj = this->getFromPath(relPath);
 
     if (obj) { // object already exists by this name
 
@@ -79,18 +85,20 @@ bool GitConfig::addGitObj(const std::filesystem::path& p) {
         
         std::shared_ptr<GitFolder> iterator = this->rootObject;
         
-        // find the find the folder containing the path to p
+        // iterate relative segments, but create objects with full absolute paths
         std::shared_ptr<GitFolder> lastExistingDir = nullptr;
         std::shared_ptr<GitFolder> firstNonExistingDir = nullptr;
-        for (auto it = p.begin(); it != p.end(); ++it) {
-            if (std::next(it) == p.end()) { // add file/dir to the tree
+        std::filesystem::path cumulativePath = repoRoot;
+        for (auto it = relPath.begin(); it != relPath.end(); ++it) {
+            cumulativePath /= *it;
+            if (std::next(it) == relPath.end()) { // add file/dir to the tree
                 iterator->addSubObj(p);
                 break;
             }
             
             // if we've already reached a non existing dir, continue adding new dirs
             if (lastExistingDir) {
-                std::shared_ptr<GitFolder> newFolder = std::make_shared<GitFolder>(*it, false);
+                std::shared_ptr<GitFolder> newFolder = GitFolder::create(cumulativePath, false);
                 newFolder->mount(iterator);
                 iterator->addSubObj(newFolder);
                 iterator = newFolder; 
@@ -98,10 +106,10 @@ bool GitConfig::addGitObj(const std::filesystem::path& p) {
             }
 
             // try to find the next existing dir
-            std::shared_ptr<GitObject> next = iterator->getByName(it->filename().string());
+            std::shared_ptr<GitObject> next = iterator->getByName(it->string());
             if (!next) { // mark iterator as last existing dir and continue adding from here
                 lastExistingDir = iterator;
-                std::shared_ptr<GitFolder> newFolder = std::make_shared<GitFolder>(*it, false);
+                std::shared_ptr<GitFolder> newFolder = GitFolder::create(cumulativePath, false);
                 newFolder->mount(iterator);
                 firstNonExistingDir = newFolder;
                 iterator = newFolder;

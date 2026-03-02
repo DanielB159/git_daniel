@@ -6,24 +6,28 @@
 #include <memory>
 #include <iostream>
 
+std::shared_ptr<GitFolder> GitFolder::create(const std::filesystem::path& p, bool populate) {
+    auto folder = std::make_shared<GitFolder>(p);
+    if (populate) folder->addSubObjects(p);
+    return folder;
+}
+
+GitFolder::GitFolder(const std::filesystem::path& p) : GitObject(p) {
+    assert(std::filesystem::is_directory(p));
+}
+
 void GitFolder::addSubObjects(const std::filesystem::path& p) {
     for (const auto& entry : std::filesystem::directory_iterator(p)) {
         const auto& subPath = entry.path();
         std::shared_ptr<GitObject> newEntry;
         if (entry.is_directory()) {
-            newEntry = std::make_shared<GitFolder>(subPath);
+            newEntry = GitFolder::create(subPath);
         } else if (entry.is_regular_file()) {
             newEntry = std::make_shared<GitFile>(subPath);
         }
         newEntry->mount(shared_from_this());
         this->addSubObj(newEntry);
     }
-}
-
-GitFolder::GitFolder(const std::filesystem::path& p, const bool addSubObj) : GitObject(p) {
-    assert(std::filesystem::is_directory(p));
-    if (!addSubObj) return;
-    this->addSubObjects(p);
 }
 
 std::shared_ptr<GitObject> GitFolder::getByName(const std::string& name) const {
@@ -60,7 +64,7 @@ bool GitFolder::addSubObj(const std::filesystem::path& p) {
         newObj = std::make_shared<GitFile>(p);
     } else {
         assert(std::filesystem::is_directory(p));
-        newObj = std::make_shared<GitFolder>(p);
+        newObj = GitFolder::create(p);
     }
     
     newObj->mount(shared_from_this());
