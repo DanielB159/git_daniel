@@ -40,5 +40,12 @@
 # debug information files
 *.dwo
 
-# build directory
+# build and cache directories
 build
+unix/build
+windows/build
+.cache
+repo
+
+# Inner git_d files
+.git_d

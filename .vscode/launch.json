@@ -1,0 +1,25 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug: add example",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/unix/build/git_d",
+            "args": ["add", "example"],
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "build-debug",
+            "stopOnEntry": false
+        },
+        {
+            "name": "Debug: init",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/unix/build/git_d",
+            "args": ["init"],
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "build-debug",
+            "stopOnEntry": false
+        }
+    ]
+}
