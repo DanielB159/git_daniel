@@ -1,12 +1,14 @@
 #include "GitConfig.h"
 #include "GitFile.h"
+#include "GitObject.h"
 #include <exception>
 #include <filesystem>
 #include <iostream>
+#include <ostream>
 #include <string>
 
 
-const GitConfig& getRepoConfig() {
+GitConfig& getRepoConfig() {
     std::filesystem::path currPath = std::filesystem::current_path();
     return GitConfig::instance(currPath);
 }
@@ -46,13 +48,9 @@ int main(int argc, char* argv[]) {
                 std::cerr << "add failed. Please provide a valid path" << std::endl;
                 break;
             }
-            const GitConfig config = getRepoConfig(); // to be used to add the file 
-            if (std::filesystem::is_directory(addPath)) {
-
-            } else if (std::filesystem::is_regular_file(addPath)) {
-                GitFile file = new GitFile(addPath);
-            } else {
-                std::cerr << "add failed. The path isn't a regular file or directory" << std::endl;
+            GitConfig& config = getRepoConfig(); 
+            if (!config.addGitObj(addPath)) {
+                std::cerr << "Adding this path to git failed!" << std::endl;
             }
 
         } while (false);

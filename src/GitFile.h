@@ -4,11 +4,11 @@
 #include "GitObject.h"
 #include "FileChunk.h"
 
-class GitFile : GitObject {
+class GitFile : public GitObject {
 
     public:
-        void addObject();
         explicit GitFile(std::filesystem::path&);
+        virtual const SubType getType() const { return SubType::SUB_FILE; }
     private:
         const uint8_t MAX_CHUNK_SIZE = 5;
 

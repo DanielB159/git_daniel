@@ -1,10 +1,11 @@
+#include <filesystem>
 #include <fstream>
 #include <stdexcept>
 #include <string>
 #include "GitFile.h"
 #include "FileChunk.h"
 
-GitFile::GitFile(std::filesystem::path& p) {
+GitFile::GitFile(std::filesystem::path& p) : GitObject(p.filename().string()) {
     parseChunks(p);
 }
 
