@@ -15,20 +15,6 @@ GitConfig& getRepoConfig() {
     return GitConfig::instance(currPath);
 }
 
-void printGitTree(std::shared_ptr<GitFolder> root, const std::string& prefix = "", bool isLast = true) {
-    std::cout << prefix << (isLast ? "└── " : "├── ") << root->getName() << "/" << std::endl;
-    const auto& children = root->getSubObjects();
-    for (size_t i = 0; i < children.size(); ++i) {
-        const auto& child = children[i];
-        const bool last = (i == children.size() - 1);
-        const std::string childPrefix = prefix + (isLast ? "    " : "│   ");
-        if (child->isDirectory()) {
-            printGitTree(std::dynamic_pointer_cast<GitFolder>(child), childPrefix, last);
-        } else {
-            std::cout << childPrefix << (last ? "└── " : "├── ") << child->getName() << std::endl;
-        }
-    }
-}
 
 
 int main(int argc, char* argv[]) {
@@ -70,7 +56,7 @@ int main(int argc, char* argv[]) {
             if (!config.addGitObj(addPath)) {
                 std::cerr << "Adding this path to git failed!" << std::endl;
             }
-            printGitTree(config.getRoot());
+            config.printTree();
 
         } while (false);
 

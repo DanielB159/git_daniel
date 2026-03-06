@@ -12,11 +12,13 @@ class GitConfig {
         static void initRepo(const std::filesystem::path&);
         bool addGitObj(const std::filesystem::path&);
         std::shared_ptr<GitFolder> getRoot();
+        void printTree() const;
     
     private:
         GitConfig(const std::filesystem::path&);
         void initFromConfig(const std::filesystem::path&);
         std::shared_ptr<GitObject> getFromPath(const std::filesystem::path&) const;
+        void printGitTreeFromFolder(const std::shared_ptr<GitFolder>&, std::string printPrefix) const;
 
         GitConfig* conf;
         std::vector<GitCommit> commitList;

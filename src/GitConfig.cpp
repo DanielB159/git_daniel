@@ -129,3 +129,18 @@ bool GitConfig::addGitObj(const std::filesystem::path& p) {
 
     return true;
 }
+
+void GitConfig::printTree() const {
+    this->printGitTreeFromFolder(this->rootObject, "");
+}
+
+void GitConfig::printGitTreeFromFolder(const std::shared_ptr<GitFolder>& root, std::string printPrefix) const {
+    for (auto& subObj : root->getSubObjects()) {
+        if (subObj->isDirectory()) {
+            std::cout << printPrefix << subObj->getName() << ":" << std::endl;
+            this->printGitTreeFromFolder(std::dynamic_pointer_cast<GitFolder>(subObj), printPrefix + "|- ");
+        } else {
+            std::cout << printPrefix << subObj->getName() << std::endl;
+        }
+    }
+}
