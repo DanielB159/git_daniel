@@ -2,42 +2,26 @@
 #include <filesystem>
 #include <iostream>
 #include <memory>
-#include <stdexcept>
-#include <system_error>
-#include <fstream>
 #include <cassert>
+#include <stdexcept>
 #include "GitConfig.h"
+#include "ConfigDiskManager.h"
 #include "GitFolder.h"
 #include "GitObject.h"
 
-static void touch_file(std::filesystem::path p) {
-    std::ofstream ofs(p, std::ios::app);
-    if (!ofs) throw std::runtime_error("Failed creating the file: " + p.string());
-}
+
 
 std::shared_ptr<GitFolder> GitConfig::getRoot() {
     return this->rootObject;
 }
 
-void GitConfig::initRepo(const std::filesystem::path &repoPath) {
-    if (!std::filesystem::exists(repoPath)) throw std::runtime_error("Repository path not found");
-    std::filesystem::path gitConfigPath = repoPath / ".git_d";
-    if (std::filesystem::exists(gitConfigPath)) {
-        std::cout << "repository already initialized, .git_d already exists" << std::endl;
-        return;
-    }
-    std::error_code ec;
-    std::filesystem::create_directory(gitConfigPath, ec);
-    if (ec) throw std::runtime_error("Error in creating .git_d");
-    std::filesystem::create_directory(gitConfigPath / "config", ec);
-    if (ec) throw std::runtime_error("Error in creating .git_d/config");
-    touch_file(gitConfigPath / "index");
-    touch_file(gitConfigPath / "HEAD");
+void GitConfig::initRepo() {
+    this->configDiskManager.initRepoDisk();
 }
 
-GitConfig& GitConfig::instance(const std::filesystem::path &p) {
+GitConfig& GitConfig::instance() {
     // static initialization makes sure that it's calld only once
-    static GitConfig inst(p);
+    static GitConfig inst(std::filesystem::current_path());
     return inst;
 }
 
@@ -58,10 +42,8 @@ std::shared_ptr<GitObject> GitConfig::getFromPath(const std::filesystem::path& p
 
 }
 
-GitConfig::GitConfig(const std::filesystem::path &p) {
-    if (!std::filesystem::exists(p / ".git_d")) {
-        initRepo(p);
-    }
+GitConfig::GitConfig(const std::filesystem::path &p) : configDiskManager(ConfigDiskManager::instance(p)) {
+    initRepo();
     this->rootObject = GitFolder::create(p, false);
 }
 
@@ -128,4 +110,44 @@ bool GitConfig::addGitObj(const std::filesystem::path& p) {
     }
 
     return true;
+}
+
+void GitConfig::printTree() const {
+    this->printGitTreeFromFolder(this->rootObject, "");
+}
+
+void GitConfig::printGitTreeFromFolder(const std::shared_ptr<GitFolder>& root, std::string printPrefix) const {
+    for (auto& subObj : root->getSubObjects()) {
+        if (subObj->isDirectory()) {
+            std::cout << printPrefix << subObj->getName() << ":" << std::endl;
+            this->printGitTreeFromFolder(std::dynamic_pointer_cast<GitFolder>(subObj), printPrefix + "|- ");
+        } else {
+            std::cout << printPrefix << subObj->getName() << std::endl;
+        }
+    }
+}
+
+bool GitConfig::isInitialized() {
+    return std::filesystem::exists(std::filesystem::current_path() / ".git_d");
+}
+
+void GitConfig::stageDir(const std::filesystem::path& p) const {
+    assert(std::filesystem::is_directory(p));
+    for (const auto& entry : std::filesystem::directory_iterator(p)) {
+        const std::filesystem::path& entryPath = entry.path();
+        if (std::filesystem::is_directory(entryPath)) {
+            this->stageDir(entryPath);
+        } else {
+            this->stageFile(entryPath);
+        }
+    }
+}
+
+void GitConfig::stageFile(const std::filesystem::path& p) const {
+    assert(!std::filesystem::is_directory(p));
+    try {
+        this->configDiskManager.stageFile(p);
+    } catch (std::runtime_error e) {
+        std::cerr << "Failed to stage file: " << e.what() << std::endl;
+    }
 }

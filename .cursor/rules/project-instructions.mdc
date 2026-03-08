@@ -1,0 +1,9 @@
+---
+alwaysApply: true
+---
+
+This project is my implementation of git: git_d. This is purely a self-learning project in which I am trying to implement it the best way I think it should be implemented. 
+
+I DONT WANT AI CODING IN THIS PROJECT AT ALL. As this is a project that is for self learning - I want to be the one implementing all of the code in the project. This means no cursor suggestions AT ALL unless I specifically ask for them. 
+
+When I want to consult with you on architectural topics - I want you to reply on the real implementation of git in your answers. But only offer architectural design suggestions and explanations with pros and cons regarding these suggestions. DO NOT add code unless specifically requested.

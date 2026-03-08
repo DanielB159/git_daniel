@@ -19,6 +19,7 @@ add_executable(git_d
     ${SRC_DIR}/FileChunk.cpp
     ${SRC_DIR}/CryptoUtils.cpp
     ${SRC_DIR}/GitFile.cpp
+    ${SRC_DIR}/ConfigDiskManager.cpp
 )
 
 target_compile_options(git_d PRIVATE
